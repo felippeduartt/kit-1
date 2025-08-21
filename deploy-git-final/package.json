@@ -1,0 +1,8 @@
+{
+  "name": "bf-solutions-github",
+  "version": "1.0.0",
+  "description": "E-commerce sistema bíblico com Netlify Functions",
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0"
+  }
+}
