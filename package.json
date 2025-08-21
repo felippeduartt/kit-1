@@ -1,8 +1,8 @@
 {
-  "name": "kit-biblico-super-robusto",
+  "name": "kit-biblico-correto",
   "version": "1.0.0",
-  "description": "Kit Bíblico com extração ULTRA-ROBUSTA de email",
-  "main": "netlify/functions/yampi-webhook.js",
+  "description": "Kit Bíblico com estrutura CORRETA para Netlify",
+  "main": "functions/yampi-webhook.js",
   "dependencies": {
     "@sendgrid/mail": "^7.7.0"
   },

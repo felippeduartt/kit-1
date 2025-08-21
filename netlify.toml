@@ -1,8 +1,8 @@
 [build]
-  functions = "netlify/functions"
+  functions = "functions"
 
 [functions]
-  included_files = ["netlify/functions/**/*"]
+  included_files = ["functions/**/*"]
 
 [[headers]]
   for = "/.netlify/functions/*"
