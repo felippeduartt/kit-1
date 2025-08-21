@@ -3,7 +3,7 @@
   command = "echo 'Netlify build completed'"
 
 [functions]
-  directory = "netlify/functions"
+  directory = "functions"
 
 [[redirects]]
   from = "/api/yampi/webhook"
