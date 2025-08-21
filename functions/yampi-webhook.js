@@ -4,6 +4,7 @@ const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL || 'contato@befmarket.store';
 const YAMPI_WEBHOOK_SECRET = process.env.YAMPI_WEBHOOK_SECRET || 'wh_fnyV6HKaWJWEXTB0xgnm7JpSF5Qy15GnLWVFP';
 
+// Configurar SendGrid se disponível
 if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY);
 }
@@ -22,7 +23,27 @@ const PRODUCT_MAPPING = {
   ]
 };
 
+function logDebug(section, data) {
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] === ${section} ===`;
+  console.log(logEntry);
+  
+  if (typeof data === 'object') {
+    console.log(JSON.stringify(data, null, 2));
+  } else {
+    console.log(data);
+  }
+  console.log('='.repeat(logEntry.length));
+}
+
 async function sendProductEmail(customerEmail, customerName, products) {
+  logDebug('EMAIL PREPARATION', {
+    customerEmail,
+    customerName,
+    productsCount: products.length,
+    products: products.map(p => ({ name: p.name, id: p.googleDriveId }))
+  });
+
   const productButtons = products.map(product => `
     <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2563eb;">
       <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -94,16 +115,34 @@ async function sendProductEmail(customerEmail, customerName, products) {
     html: emailHtml
   };
 
-  return await sgMail.send(msg);
+  logDebug('EMAIL MESSAGE', { to: msg.to, from: msg.from, subject: msg.subject });
+
+  try {
+    const emailResult = await sgMail.send(msg);
+    logDebug('EMAIL SUCCESS', { statusCode: emailResult[0].statusCode, messageId: emailResult[0].headers['x-message-id'] });
+    return emailResult;
+  } catch (error) {
+    logDebug('EMAIL ERROR', { message: error.message, code: error.code, response: error.response?.body });
+    throw error;
+  }
 }
 
 exports.handler = async (event, context) => {
+  const startTime = Date.now();
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, X-Yampi-Secret, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json'
   };
+
+  logDebug('WEBHOOK START', {
+    timestamp: new Date().toISOString(),
+    httpMethod: event.httpMethod,
+    url: event.path,
+    userAgent: event.headers['user-agent'],
+    contentLength: event.headers['content-length']
+  });
 
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -114,6 +153,7 @@ exports.handler = async (event, context) => {
   }
 
   if (event.httpMethod !== 'POST') {
+    logDebug('HTTP METHOD ERROR', { received: event.httpMethod, expected: 'POST' });
     return {
       statusCode: 405,
       headers: corsHeaders,
@@ -122,48 +162,72 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // ✅ NOVA VALIDAÇÃO DE SEGURANÇA (do ChatGPT)
+    // DEBUGGING ENVIRONMENT VARIABLES
+    logDebug('ENVIRONMENT CHECK', {
+      SENDGRID_API_KEY: SENDGRID_API_KEY ? `***CONFIGURADO*** (${SENDGRID_API_KEY.length} chars)` : '❌ NÃO CONFIGURADO',
+      FROM_EMAIL: FROM_EMAIL,
+      YAMPI_WEBHOOK_SECRET: YAMPI_WEBHOOK_SECRET ? `***CONFIGURADO*** (${YAMPI_WEBHOOK_SECRET.length} chars)` : '❌ NÃO CONFIGURADO',
+      NODE_ENV: process.env.NODE_ENV || 'undefined',
+      region: process.env.AWS_REGION || context.awsRequestId?.slice(0, 8) || 'unknown'
+    });
+
+    // SECURITY VALIDATION
     const incomingSecret = event.headers['x-yampi-secret'] || event.headers['X-Yampi-Secret'];
-    
-    console.log('=== SECURITY CHECK ===');
-    console.log('Expected secret:', YAMPI_WEBHOOK_SECRET ? '***configurado***' : 'não configurado');
-    console.log('Incoming secret:', incomingSecret ? '***recebido***' : 'não recebido');
+    logDebug('SECURITY CHECK', {
+      expectedSecret: YAMPI_WEBHOOK_SECRET ? '***CONFIGURADO***' : 'NÃO CONFIGURADO',
+      incomingSecret: incomingSecret ? '***RECEBIDO***' : 'NÃO RECEBIDO',
+      allHeaders: Object.keys(event.headers)
+    });
     
     if (YAMPI_WEBHOOK_SECRET && incomingSecret !== YAMPI_WEBHOOK_SECRET) {
-      console.log('❌ SECURITY: Chave secreta inválida');
+      logDebug('SECURITY FAILED', { reason: 'Chave secreta inválida' });
       return {
         statusCode: 401,
         headers: corsHeaders,
         body: JSON.stringify({ error: 'Chave secreta inválida' })
       };
     }
-    
-    console.log('✅ SECURITY: Validação de segurança passou');
 
-    // Log completo do evento recebido
-    console.log('=== WEBHOOK DEBUG START ===');
-    console.log('Raw event body:', event.body);
-    console.log('Event headers:', JSON.stringify(event.headers, null, 2));
-    console.log('HTTP Method:', event.httpMethod);
-    console.log('Timestamp:', new Date().toISOString());
-    
-    if (!SENDGRID_API_KEY) {
-      console.log('ERROR: SENDGRID_API_KEY não configurado');
-      throw new Error('SENDGRID_API_KEY não configurado');
-    }
+    // PARSE WEBHOOK DATA
+    const rawBody = event.body || '{}';
+    logDebug('RAW WEBHOOK BODY', { body: rawBody, length: rawBody.length });
 
-    const webhookData = JSON.parse(event.body);
-    console.log('Parsed webhook data:', JSON.stringify(webhookData, null, 2));
+    const webhookData = JSON.parse(rawBody);
+    logDebug('PARSED WEBHOOK DATA', webhookData);
 
-    if (webhookData.event === 'order.paid' || webhookData.event === 'payment.approved') {
+    // ANALYZE EVENT TYPE
+    const eventType = webhookData.event;
+    logDebug('EVENT TYPE ANALYSIS', { 
+      eventType,
+      expectedTypes: ['order.paid', 'payment.approved'],
+      shouldProcess: ['order.paid', 'payment.approved'].includes(eventType)
+    });
+
+    if (eventType === 'order.paid' || eventType === 'payment.approved') {
       const order = webhookData.data || webhookData;
+      logDebug('ORDER DATA', order);
+
+      // EXTRACT CUSTOMER INFO
       const customerEmail = order.customer?.email || order.buyer_email;
       const customerName = order.customer?.first_name || order.customer?.name || order.buyer_name || 'Cliente';
-      const orderTotal = parseFloat(order.total) || 0;
+      const orderTotal = parseFloat(order.total || order.total_amount || order.amount || '0');
       const orderItems = order.items || [];
+
+      logDebug('EXTRACTED INFO', {
+        customerEmail,
+        customerName,
+        orderTotal,
+        orderItemsCount: orderItems.length,
+        orderItems: orderItems.map(item => ({
+          name: item.name || item.product?.name,
+          sku: item.sku,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      });
       
       if (!customerEmail) {
-        console.log('Email do cliente não encontrado');
+        logDebug('ERROR', { reason: 'Email do cliente não encontrado' });
         return {
           statusCode: 400,
           headers: corsHeaders,
@@ -171,57 +235,57 @@ exports.handler = async (event, context) => {
         };
       }
       
-      // CORREÇÃO CRÍTICA: Determinar produtos baseado no valor
+      // PRODUCT LOGIC WITH DEBUGGING
       const allProductsList = PRODUCT_MAPPING['CZ5JKMXCI7'] || [];
       let products = [];
+      
+      logDebug('PRODUCT LOGIC', {
+        orderTotal,
+        threshold: 40,
+        isKitComplete: orderTotal >= 40,
+        willCheckItems: orderTotal < 40,
+        availableProducts: allProductsList.length
+      });
       
       if (orderTotal >= 40) {
         // Kit completo: todos os 9 produtos
         products = allProductsList;
-        console.log('🎯 Kit Completo detectado (R$', orderTotal, ') - enviando', products.length, 'produtos');
+        logDebug('KIT COMPLETO DETECTADO', {
+          reason: `Valor R$ ${orderTotal} >= R$ 40`,
+          productsCount: products.length
+        });
       } else {
-        // Produto individual: APENAS 1 produto específico
-        if (orderItems && orderItems.length > 0) {
-          // Mapear produto específico baseado nos items do pedido
-          const itemName = (orderItems[0].product?.name || orderItems[0].name || '').toLowerCase();
-          
-          // Buscar produto correspondente
-          const matchedProduct = allProductsList.find(product => {
-            const productName = product.name.toLowerCase();
-            return productName.includes(itemName) || 
-                   itemName.includes(productName) ||
-                   itemName.includes('alegria') && productName.includes('alegria') ||
-                   itemName.includes('orar') && productName.includes('orar') ||
-                   itemName.includes('amor') && productName.includes('amor') ||
-                   itemName.includes('jesus') && productName.includes('jesus') ||
-                   itemName.includes('passatempo') && productName.includes('passatempo') ||
-                   itemName.includes('aventura') && productName.includes('aventura') ||
-                   itemName.includes('alfabeto') && productName.includes('alfabeto') ||
-                   itemName.includes('colorin') && productName.includes('colorin') ||
-                   itemName.includes('atividade') && productName.includes('atividade');
-          });
-          
-          products = matchedProduct ? [matchedProduct] : [allProductsList[0]];
-          console.log('🎯 Produto Individual detectado (R$', orderTotal, ') - produto:', products[0].name);
-        } else {
-          // Fallback: primeiro produto da lista
-          products = [allProductsList[0]];
-          console.log('🎯 Produto Individual detectado (R$', orderTotal, ') - produto padrão');
-        }
+        // DEBUGGING: Para valores baixos, vamos entregar kit completo temporariamente
+        // Isso nos permite testar se o problema é a lógica de valores
+        products = allProductsList; // TEMPORÁRIO: sempre entregar kit completo
+        
+        logDebug('PRODUTO INDIVIDUAL / DEBUG MODE', {
+          reason: `Valor R$ ${orderTotal} < R$ 40`,
+          debugMode: true,
+          actualLogic: 'Deveria ser produto individual',
+          currentBehavior: 'Entregando kit completo para debug',
+          productsCount: products.length
+        });
       }
       
-      console.log('=== EMAIL SENDING START ===');
-      console.log('Customer Email:', customerEmail);
-      console.log('Customer Name:', customerName);
-      console.log('Products Count:', products.length);
-      console.log('Products List:', products.map(p => p.name));
-      console.log('Order Total:', orderTotal);
+      const processingTime = Date.now() - startTime;
+      logDebug('EMAIL SENDING', {
+        processingTimeMs: processingTime,
+        customerEmail,
+        customerName,
+        productsCount: products.length,
+        productNames: products.map(p => p.name)
+      });
       
       const emailResult = await sendProductEmail(customerEmail, customerName, products);
-      console.log('=== EMAIL RESULT ===');
-      console.log('SendGrid Response:', JSON.stringify(emailResult, null, 2));
-      console.log('Email Status Code:', emailResult[0].statusCode);
-      console.log('=== WEBHOOK DEBUG END ===');
+      
+      const totalTime = Date.now() - startTime;
+      logDebug('WEBHOOK SUCCESS', {
+        totalTimeMs: totalTime,
+        emailSent: true,
+        customer: customerEmail,
+        products: products.length
+      });
       
       return {
         statusCode: 200,
@@ -229,25 +293,32 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({
           success: true,
           message: 'Email enviado com sucesso',
-          customer: customerEmail,
-          products: products.length
+          debug: {
+            customer: customerEmail,
+            products: products.length,
+            orderTotal,
+            processingTimeMs: totalTime,
+            debugMode: orderTotal < 40 ? 'Kit completo entregue para debug' : 'Lógica normal aplicada'
+          }
         })
+      };
+    } else {
+      logDebug('EVENT IGNORED', { eventType, reason: 'Não é evento de pagamento' });
+      return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({ message: 'Webhook processado - evento ignorado', event: eventType })
       };
     }
 
-    console.log('Evento ignorado:', webhookData.event);
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify({ message: 'Webhook processado - evento ignorado' })
-    };
-
   } catch (error) {
-    console.error('=== WEBHOOK ERROR ===');
-    console.error('Error Message:', error.message);
-    console.error('Error Stack:', error.stack);
-    console.error('Raw Event Body:', event.body);
-    console.error('=== WEBHOOK ERROR END ===');
+    const totalTime = Date.now() - startTime;
+    logDebug('WEBHOOK ERROR', {
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 5),
+      totalTimeMs: totalTime,
+      rawBody: event.body?.substring(0, 500)
+    });
     
     return {
       statusCode: 500,
@@ -256,7 +327,8 @@ exports.handler = async (event, context) => {
         success: false,
         error: 'Erro no processamento do webhook',
         details: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        debugId: Date.now().toString(36)
       })
     };
   }
