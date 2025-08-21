@@ -1,10 +1,11 @@
 [build]
   publish = "."
-  command = "echo 'Webhook only - no build needed'"
+  command = "npm install"
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  external_node_modules = ["@sendgrid/mail"]
   
 [functions.yampi-webhook]
   timeout = 30

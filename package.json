@@ -2,11 +2,14 @@
   "name": "kit-biblico-webhook",
   "version": "1.0.0",
   "description": "Webhook Yampi para entrega automática de produtos digitais",
-  "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@sendgrid/mail": "^8.1.5"
   },
   "scripts": {
+    "build": "echo 'Functions ready'",
     "test": "echo 'Webhook only - no tests needed'"
   },
   "keywords": ["yampi", "webhook", "sendgrid", "digital-products"],

@@ -14,7 +14,7 @@ Sistema de entrega automática de produtos digitais via webhook Yampi + SendGrid
 ```
 SENDGRID_API_KEY=SG.xxxxx
 FROM_EMAIL=contato@befmarket.store
-YAMPI_WEBHOOK_SECRET=TTiykXpwLwI7tYx0Jk8M0OYzBQT1dP5KhQjU6BAp
+YAMPI_WEBHOOK_SECRET=wh_fnyV6HKaWJWEXTB0xgnm7JpSF5Qy15GnLWVFP
 ```
 
 ### 2. Deploy:
