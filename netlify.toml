@@ -11,8 +11,8 @@
   status = 200
 
 [[redirects]]
-  from = "/test-webhook.html"
-  to = "/test-webhook.html"
+  from = "/webhook-admin.html"
+  to = "/webhook-admin.html"
   status = 200
 
 [[redirects]]

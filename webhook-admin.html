@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Webhook Yampi</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        button { background: #2563eb; color: white; padding: 15px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        button:hover { background: #1d4ed8; }
+        .response { background: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #2563eb; }
+        .error { border-left-color: #dc2626; background: #fef2f2; }
+        .success { border-left-color: #059669; background: #f0fdf4; }
+        input { padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; width: 300px; }
+        label { display: block; margin: 10px 0 5px 0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste Direto do Webhook</h1>
+    
+    <div>
+        <label>URL do seu site Netlify:</label>
+        <input type="text" id="siteUrl" placeholder="https://seu-site.netlify.app" value="">
+        
+        <label>Email para teste:</label>
+        <input type="text" id="testEmail" placeholder="seu-email@exemplo.com" value="">
+        
+        <br><br>
+        <button onclick="testWebhook()">🚀 Testar Webhook</button>
+        <button onclick="testWebhookDirect()">🎯 Teste Direto (Yampi Real)</button>
+    </div>
+    
+    <div id="response"></div>
+    
+    <script>
+        async function testWebhook() {
+            const siteUrl = document.getElementById('siteUrl').value;
+            const testEmail = document.getElementById('testEmail').value;
+            
+            if (!siteUrl || !testEmail) {
+                showResponse('❌ Preencha URL do site e email para teste', 'error');
+                return;
+            }
+            
+            const webhookUrl = siteUrl + '/.netlify/functions/yampi-webhook';
+            
+            const testData = {
+                event: "order.paid",
+                resource: {
+                    customer: {
+                        email: testEmail,
+                        first_name: "Cliente Teste"
+                    },
+                    total: 47
+                }
+            };
+            
+            showResponse('🔄 Testando webhook...', '');
+            
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResponse(`✅ Webhook funcionando!<br><br><strong>Status:</strong> ${response.status}<br><strong>Resposta:</strong> ${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResponse(`❌ Erro no webhook<br><br><strong>Status:</strong> ${response.status}<br><strong>Erro:</strong> ${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResponse(`💥 Falha na conexão: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testWebhookDirect() {
+            const siteUrl = document.getElementById('siteUrl').value;
+            const testEmail = document.getElementById('testEmail').value;
+            
+            if (!siteUrl || !testEmail) {
+                showResponse('❌ Preencha URL do site e email para teste', 'error');
+                return;
+            }
+            
+            const webhookUrl = siteUrl + '/api/yampi/webhook';
+            
+            const yampiData = {
+                event: "order.paid",
+                resource: {
+                    customer: {
+                        email: testEmail,
+                        first_name: "Teste Yampi Real"
+                    },
+                    total: 47,
+                    items: []
+                }
+            };
+            
+            showResponse('🔄 Testando webhook com estrutura Yampi...', '');
+            
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Yampi-Secret': 'wh_fnyV6HKaWJWEXTB0xgnm7JpSF5Qy15GnLWVFP'
+                    },
+                    body: JSON.stringify(yampiData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResponse(`✅ Webhook Yampi funcionando!<br><br><strong>Status:</strong> ${response.status}<br><strong>Customer:</strong> ${result.details?.customer}<br><strong>Produtos:</strong> ${result.details?.products}<br><strong>SendGrid ID:</strong> ${result.details?.sendgridMessageId}`, 'success');
+                } else {
+                    showResponse(`❌ Erro no webhook Yampi<br><br><strong>Status:</strong> ${response.status}<br><strong>Erro:</strong> ${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResponse(`💥 Falha na conexão: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResponse(message, type) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = `<div class="response ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
