@@ -113,8 +113,8 @@ function extractOrderData(rawData) {
     });
   }
   
-  // Tentativa 2: Dados diretos
-  if (rawData && (rawData.customer || rawData.total || rawData.email)) {
+  // Tentativa 2: Dados diretos (incluindo estrutura Yampi)
+  if (rawData && (rawData.customer || rawData.total || rawData.email || rawData.resource)) {
     attempts.push({
       source: 'rawData direct',
       data: rawData,
@@ -185,8 +185,9 @@ function processOrderData(orderData, eventType) {
     throw new Error('Dados do pedido não encontrados');
   }
   
-  // Múltiplas formas de extrair email
+  // YAMPI REAL: Múltiplas formas de extrair email
   const customerEmail = 
+    orderData.resource?.customer?.email ||      // Yampi real structure
     orderData.customer?.email ||
     orderData.buyer_email ||
     orderData.email ||
@@ -194,8 +195,10 @@ function processOrderData(orderData, eventType) {
     orderData.user_email ||
     null;
   
-  // Múltiplas formas de extrair nome
+  // YAMPI REAL: Múltiplas formas de extrair nome
   const customerName = 
+    orderData.resource?.customer?.first_name || // Yampi real structure
+    orderData.resource?.customer?.name ||
     orderData.customer?.first_name ||
     orderData.customer?.name ||
     orderData.buyer_name ||
@@ -204,12 +207,13 @@ function processOrderData(orderData, eventType) {
     orderData.user_name ||
     'Cliente';
   
-  // Múltiplas formas de extrair valor
+  // YAMPI REAL: Múltiplas formas de extrair valor
   const orderTotal = 
-    parseFloat(orderData.total || orderData.amount || orderData.value || orderData.price || 47);
+    parseFloat(orderData.resource?.total || orderData.total || orderData.amount || orderData.value || orderData.price || 47);
   
-  // Múltiplas formas de extrair items
+  // YAMPI REAL: Múltiplas formas de extrair items
   const orderItems = 
+    orderData.resource?.items || 
     orderData.items || 
     orderData.products || 
     orderData.line_items || 
@@ -238,6 +242,7 @@ function processOrderData(orderData, eventType) {
 function getFieldSource(data, fieldType) {
   switch (fieldType) {
     case 'email':
+      if (data.resource?.customer?.email) return 'resource.customer.email';
       if (data.customer?.email) return 'customer.email';
       if (data.buyer_email) return 'buyer_email';
       if (data.email) return 'email';
@@ -246,6 +251,8 @@ function getFieldSource(data, fieldType) {
       return 'not found';
       
     case 'name':
+      if (data.resource?.customer?.first_name) return 'resource.customer.first_name';
+      if (data.resource?.customer?.name) return 'resource.customer.name';
       if (data.customer?.first_name) return 'customer.first_name';
       if (data.customer?.name) return 'customer.name';
       if (data.buyer_name) return 'buyer_name';
@@ -255,6 +262,7 @@ function getFieldSource(data, fieldType) {
       return 'default';
       
     case 'total':
+      if (data.resource?.total) return 'resource.total';
       if (data.total) return 'total';
       if (data.amount) return 'amount';
       if (data.value) return 'value';
@@ -262,6 +270,7 @@ function getFieldSource(data, fieldType) {
       return 'default (47)';
       
     case 'items':
+      if (data.resource?.items) return 'resource.items';
       if (data.items) return 'items';
       if (data.products) return 'products';
       if (data.line_items) return 'line_items';
