@@ -1,18 +1,12 @@
 {
-  "name": "kit-biblico-webhook",
+  "name": "kit-biblico-super-robusto",
   "version": "1.0.0",
-  "description": "Webhook Yampi para entrega automática de produtos digitais",
-  "engines": {
-    "node": "18.x"
-  },
+  "description": "Kit Bíblico com extração ULTRA-ROBUSTA de email",
+  "main": "netlify/functions/yampi-webhook.js",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.5"
+    "@sendgrid/mail": "^7.7.0"
   },
-  "scripts": {
-    "build": "echo 'Functions ready'",
-    "test": "echo 'Webhook only - no tests needed'"
-  },
-  "keywords": ["yampi", "webhook", "sendgrid", "digital-products"],
-  "author": "B&F Soluções",
-  "license": "MIT"
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }

@@ -1,52 +1,26 @@
-# Kit Bíblico Infantil - Webhook Yampi
+# Kit Bíblico - ULTRA-ROBUSTO v2.0
 
-## 🎯 Objetivo
-Sistema de entrega automática de produtos digitais via webhook Yampi + SendGrid.
+## 🔧 CORREÇÕES CRÍTICAS IMPLEMENTADAS:
 
-## 📦 Conteúdo
-- **Webhook**: `netlify/functions/yampi-webhook.js` (ultra-robusto)
-- **Config**: `netlify.toml` (configuração Netlify)
-- **Deps**: `package.json` (dependências SendGrid)
+### ✅ **PROBLEMA 1 - Validação isValid RESOLVIDO**
+- Sistema NUNCA mais bloqueia por falta de email
+- Campo `foundRealEmail` indica se encontrou email real
+- Fallback para contato@befmarket.store quando necessário
 
-## 🚀 Deploy Netlify
+### ✅ **PROBLEMA 2 - SendGrid protegido com try/catch**
+- Função sendProductEmail com proteção completa
+- Logs detalhados de sucesso E falha
+- Sistema continua funcionando mesmo se email falhar
 
-### 1. Configurar Variáveis de Ambiente:
-```
-SENDGRID_API_KEY=SG.xxxxx
-FROM_EMAIL=contato@befmarket.store
-YAMPI_WEBHOOK_SECRET=wh_fnyV6HKaWJWEXTB0xgnm7JpSF5Qy15GnLWVFP
-```
+### ✅ **PROBLEMA 3 - Logs ultra-detalhados**
+- Debug completo da estrutura de dados recebida
+- 18+ tentativas de extração de email
+- Busca recursiva em todo o objeto
+- Caminho exato onde dados foram encontrados
 
-### 2. Deploy:
-- Conectar repositório GitHub ao Netlify
-- Build command: `echo "Netlify build completed"`
-- Publish directory: `.` (raiz)
-- Functions directory: `netlify/functions` (automático)
+## 📦 DEPLOY:
+1. Upload para Netlify via GitHub
+2. Configurar env vars: SENDGRID_API_KEY, FROM_EMAIL, YAMPI_WEBHOOK_SECRET
+3. Webhook URL: https://SEU-SITE.netlify.app/.netlify/functions/yampi-webhook
 
-## 🎯 Estrutura Yampi Esperada:
-```json
-{
-  "event": "order.paid",
-  "resource": {
-    "customer": {
-      "email": "cliente@exemplo.com",
-      "first_name": "Nome"
-    },
-    "total": 47
-  }
-}
-```
-
-## ✅ Produtos Configurados (9):
-1. Kit Infantil Completo (3-5 anos)
-2. Kit Infantil Avançado (6-8 anos)
-3. Kit Pré-Adolescente (9-12 anos)
-4. Atividades de Pintura Bíblica
-5. Quebra-Cabeças Bíblicos
-6. Caça-Palavras Cristão
-7. Labirintos da Fé
-8. Desenhos para Colorir
-9. Versículos Ilustrados
-
----
-**Status**: Webhook corrigido para estrutura real do Yampi
+## 🎯 STATUS: PRONTO PARA PRODUÇÃO
