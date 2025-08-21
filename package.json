@@ -1,0 +1,8 @@
+{
+  "name": "bf-solutions-final",
+  "version": "2.0.0",
+  "description": "Kit Bíblico Infantil - Sistema completo com webhook híbrido e build otimizada",
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0"
+  }
+}
