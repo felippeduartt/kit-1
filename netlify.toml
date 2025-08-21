@@ -1,6 +1,6 @@
 [build]
-  publish = "dist/public"
-  command = "npm run build"
+  publish = "."
+  command = "echo 'Webhook only - no build needed'"
 
 [functions]
   directory = "netlify/functions"
