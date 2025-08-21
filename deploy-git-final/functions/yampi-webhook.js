@@ -1,62 +1,65 @@
 const sgMail = require('@sendgrid/mail');
 
-exports.handler = async (event, context) => {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Yampi-Secret, Authorization',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Content-Type': 'application/json'
-  };
+// Configuração inicial
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
+exports.handler = async (event) => {
+  // 1. VALIDAÇÃO DE SEGURANÇA (Chave secreta da Yampi)
+  const YAMPI_SECRET = 'wh_fnyV6HKaWJWEXTB0xgnm7JpSF5Qy15GnLWVFP';
+  const incomingSecret = event.headers['x-yampi-secret'] || event.headers['X-Yampi-Secret'];
+  
+  if (incomingSecret !== YAMPI_SECRET) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ error: 'Chave secreta inválida' })
+    };
   }
 
+  // 2. VERIFICA MÉTODO HTTP
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Método não permitido. Use POST.' })
+      body: JSON.stringify({ error: 'Método não permitido' })
     };
   }
 
   try {
-    const webhookData = JSON.parse(event.body || '{}');
-    const { event: eventType, data } = webhookData;
+    // 3. PROCESSAMENTO DO WEBHOOK
+    const data = JSON.parse(event.body);
+    const { event: eventType, payload } = data;
 
-    if (eventType === 'order.paid' || eventType === 'payment.approved') {
-      const result = await processOrderPaid(data);
+    // 4. SÓ PROCESSAR EVENTOS DE PAGAMENTO
+    if (eventType === 'payment.approved' || eventType === 'order.paid') {
+      const result = await processOrderPaid(payload);
       
       return {
         statusCode: 200,
-        headers,
         body: JSON.stringify({
           success: true,
-          message: 'Email enviado com sucesso',
-          customer: data.customer?.email,
+          message: 'E-mail enviado com sucesso',
+          customer: payload.customer?.email,
           products: result.productsCount
         })
       };
-    } else {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          success: true,
-          message: 'Evento processado (ignorado)',
-          event: eventType
-        })
-      };
     }
+
+    // 5. OUTROS EVENTOS SÃO IGNORADOS
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ 
+        success: true, 
+        message: 'Evento recebido (não requer ação)',
+        event: eventType 
+      })
+    };
 
   } catch (error) {
     console.error('❌ Erro no webhook:', error);
     return {
       statusCode: 500,
-      headers,
       body: JSON.stringify({
         success: false,
-        error: 'Erro no processamento do webhook',
+        error: 'Erro interno no servidor',
         details: error.message
       })
     };
@@ -64,15 +67,16 @@ exports.handler = async (event, context) => {
 };
 
 async function processOrderPaid(orderData) {
-  const { customer, items = [], id: orderId, total, sku } = orderData;
+  const { customer, items = [], id: orderId, total_amount } = orderData;
   
   if (!customer?.email) {
-    throw new Error('Email do cliente não encontrado');
+    throw new Error('E-mail do cliente não encontrado');
   }
 
   const customerName = customer.first_name || customer.name || 'Cliente';
   const customerEmail = customer.email;
   
+  // SEUS PRODUTOS (mantive igual)
   const allProducts = [
     { name: 'Aprendendo com Alegria', driveId: '1-JJ5_GuB7bSRNWC6tgU_BJPX-z1v4Eqh' },
     { name: 'Aprendendo a Orar', driveId: '1kzOAZ3wBTjVxPd71y9XCaI7qXEqLSWjq' },
@@ -85,7 +89,10 @@ async function processOrderPaid(orderData) {
     { name: 'Atividades Bíblicas', driveId: '1c3_xGJE8OFRV7zZTQ7COyWmjhJN0QzHz' }
   ];
 
+  // LÓGICA DE SELEÇÃO DE PRODUTOS (mantive igual)
   let products = [];
+  const sku = items[0]?.sku || '';
+  const total = parseFloat(total_amount || '0');
   const isKitComplete = sku === 'CZ5JKMXCI7' || sku === 'KITCOMPLETO47' || total >= 40;
 
   if (isKitComplete) {
@@ -105,13 +112,7 @@ async function processOrderPaid(orderData) {
     products = productMap[sku] || [allProducts[0]];
   }
 
-  const apiKey = process.env.SENDGRID_API_KEY;
-  if (!apiKey) {
-    throw new Error('SENDGRID_API_KEY não configurada');
-  }
-  
-  sgMail.setApiKey(apiKey);
-
+  // HTML DO E-MAIL (mantive igual)
   const downloadLinks = products.map(product => 
     `• **${product.name}**: https://drive.google.com/file/d/${product.driveId}/view?usp=sharing`
   ).join('\n');
@@ -184,10 +185,11 @@ async function processOrderPaid(orderData) {
 </body>
 </html>`;
 
+  // ENVIO DO E-MAIL
   const msg = {
     to: customerEmail,
     from: {
-      email: process.env.FROM_EMAIL || 'contato@befmarket.store',
+      email: 'contato@befmarket.store', // Alterado para e-mail fixo
       name: 'BF Solutions'
     },
     subject: `🎉 Seus ${products.length === 1 ? 'Kit de Atividades Bíblicas' : 'Kits de Atividades Bíblicas'} - Download Liberado!`,
