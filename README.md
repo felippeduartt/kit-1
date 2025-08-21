@@ -19,8 +19,9 @@ YAMPI_WEBHOOK_SECRET=wh_fnyV6HKaWJWEXTB0xgnm7JpSF5Qy15GnLWVFP
 
 ### 2. Deploy:
 - Conectar repositório GitHub ao Netlify
-- Configurar build command: `echo "Webhook only"`
-- Publish directory: `netlify/functions`
+- Build command: `echo "Netlify build completed"`
+- Publish directory: `.` (raiz)
+- Functions directory: `netlify/functions` (automático)
 
 ## 🎯 Estrutura Yampi Esperada:
 ```json
