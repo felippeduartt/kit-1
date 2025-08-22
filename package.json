@@ -1,12 +1,11 @@
 {
-  "name": "kit-biblico-correto",
+  "name": "netlify-functions-bf-solutions",
   "version": "1.0.0",
-  "description": "Kit Bíblico com estrutura CORRETA para Netlify",
-  "main": "functions/yampi-webhook.js",
-  "dependencies": {
-    "@sendgrid/mail": "^7.7.0"
-  },
+  "main": "index.js",
   "engines": {
-    "node": ">=14.0.0"
+    "node": "18.x"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.5"
   }
 }

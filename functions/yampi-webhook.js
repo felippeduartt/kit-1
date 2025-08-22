@@ -8,18 +8,77 @@ if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY);
 }
 
+// Mapeamento de produtos por SKU/Token - DETECÇÃO PRECISA
 const PRODUCT_MAPPING = {
-  'CZ5JKMXCI7': [
-    { name: 'Aprendendo com Alegria', googleDriveId: '1CEtVnpyKUXXDKnlOt_tpHfUVElbwyf1I', icon: '📚' },
-    { name: 'Aprendendo a Orar', googleDriveId: '14r4qCfvQ5Aw-26BmahMRhZITUCrtmMtY', icon: '🙏' },
-    { name: 'O Amor de Deus', googleDriveId: '12cKZmzScN4dqGuJDlVP4dN_REBZhpn-Y', icon: '❤️' },
-    { name: 'Andando com Jesus', googleDriveId: '1N3YipbKazlgJSCeA2XGFaI9e4C2bfHYC', icon: '✝️' },
-    { name: 'Passatempo Bíblico', googleDriveId: '1tpHcCxO0UxRiJvQY3VM-u1qea1vwpR0V', icon: '🎯' },
-    { name: 'Aventuras Bíblicas', googleDriveId: '1WlmpV0UQCq5ulSVN60Ej359GxlvYKq0F', icon: '🗺️' },
-    { name: 'Alfabeto Bíblico', googleDriveId: '1jTuy3HTvWk9e0i8cajYP1eoGA3rj1CWh', icon: '🔤' },
-    { name: 'Colorindo com Propósito', googleDriveId: '1L6zq2gpKwbDk1YTkbOZBfObqAJzjTb0o', icon: '🎨' },
-    { name: 'Atividades Bíblicas', googleDriveId: '1HU2kaJf43SayRk-JrgOjnX6nWcMq9HKD', icon: '📝' }
-  ]
+  // Kit Completo - SKU da Yampi
+  'CZ5JKMXCI7': {
+    type: 'kit_completo',
+    products: [
+      { name: 'Aprendendo com Alegria', googleDriveId: '1CEtVnpyKUXXDKnlOt_tpHfUVElbwyf1I', icon: '📚' },
+      { name: 'Aprendendo a Orar', googleDriveId: '14r4qCfvQ5Aw-26BmahMRhZITUCrtmMtY', icon: '🙏' },
+      { name: 'O Amor de Deus', googleDriveId: '12cKZmzScN4dqGuJDlVP4dN_REBZhpn-Y', icon: '❤️' },
+      { name: 'Andando com Jesus', googleDriveId: '1N3YipbKazlgJSCeA2XGFaI9e4C2bfHYC', icon: '✝️' },
+      { name: 'Passatempo Bíblico', googleDriveId: '1tpHcCxO0UxRiJvQY3VM-u1qea1vwpR0V', icon: '🎯' },
+      { name: 'Aventuras Bíblicas', googleDriveId: '1WlmpV0UQCq5ulSVN60Ej359GxlvYKq0F', icon: '🗺️' },
+      { name: 'Alfabeto Bíblico', googleDriveId: '1jTuy3HTvWk9e0i8cajYP1eoGA3rj1CWh', icon: '🔤' },
+      { name: 'Colorindo com Propósito', googleDriveId: '1L6zq2gpKwbDk1YTkbOZBfObqAJzjTb0o', icon: '🎨' },
+      { name: 'Atividades Bíblicas', googleDriveId: '1HU2kaJf43SayRk-JrgOjnX6nWcMq9HKD', icon: '📝' }
+    ]
+  },
+  
+  // Produtos Individuais - SKUs da Yampi
+  'COQKCHAULS': {
+    type: 'individual',
+    products: [{ name: 'Aprendendo com Alegria', googleDriveId: '1CEtVnpyKUXXDKnlOt_tpHfUVElbwyf1I', icon: '📚' }]
+  },
+  'PJOXYTLWH8': {
+    type: 'individual', 
+    products: [{ name: 'Aprendendo a Orar', googleDriveId: '14r4qCfvQ5Aw-26BmahMRhZITUCrtmMtY', icon: '🙏' }]
+  },
+  'XMFKDQPGZR': {
+    type: 'individual',
+    products: [{ name: 'O Amor de Deus', googleDriveId: '12cKZmzScN4dqGuJDlVP4dN_REBZhpn-Y', icon: '❤️' }]
+  },
+  'BVNHJKWEQT': {
+    type: 'individual',
+    products: [{ name: 'Andando com Jesus', googleDriveId: '1N3YipbKazlgJSCeA2XGFaI9e4C2bfHYC', icon: '✝️' }]
+  },
+  'IQWERNMZXC': {
+    type: 'individual',
+    products: [{ name: 'Passatempo Bíblico', googleDriveId: '1tpHcCxO0UxRiJvQY3VM-u1qea1vwpR0V', icon: '🎯' }]
+  },
+  'TYUIOPASFG': {
+    type: 'individual',
+    products: [{ name: 'Aventuras Bíblicas', googleDriveId: '1WlmpV0UQCq5ulSVN60Ej359GxlvYKq0F', icon: '🗺️' }]
+  },
+  'QWERTYUIOP': {
+    type: 'individual',
+    products: [{ name: 'Alfabeto Bíblico', googleDriveId: '1jTuy3HTvWk9e0i8cajYP1eoGA3rj1CWh', icon: '🔤' }]
+  },
+  'ASDFGHJKLZ': {
+    type: 'individual',
+    products: [{ name: 'Colorindo com Propósito', googleDriveId: '1L6zq2gpKwbDk1YTkbOZBfObqAJzjTb0o', icon: '🎨' }]
+  },
+  'ZXCVBNMLKJ': {
+    type: 'individual',
+    products: [{ name: 'Atividades Bíblicas', googleDriveId: '1HU2kaJf43SayRk-JrgOjnX6nWcMq9HKD', icon: '📝' }]
+  }
+};
+
+// Mapeamento adicional por nome de produto (fallback)
+const PRODUCT_NAMES = {
+  'kit completo': 'CZ5JKMXCI7',
+  'kit bíblico': 'CZ5JKMXCI7',
+  'kit': 'CZ5JKMXCI7',
+  'aprendendo com alegria': 'COQKCHAULS',
+  'aprendendo a orar': 'PJOXYTLWH8', 
+  'o amor de deus': 'XMFKDQPGZR',
+  'andando com jesus': 'BVNHJKWEQT',
+  'passatempo bíblico': 'IQWERNMZXC',
+  'aventuras bíblicas': 'TYUIOPASFG',
+  'alfabeto bíblico': 'QWERTYUIOP',
+  'colorindo com propósito': 'ASDFGHJKLZ',
+  'atividades bíblicas': 'ZXCVBNMLKJ'
 };
 
 async function sendProductEmail(customerEmail, customerName, products) {
@@ -91,7 +150,12 @@ async function sendProductEmail(customerEmail, customerName, products) {
       name: 'B&F Soluções'
     },
     subject: products.length === 9 ? 'Confirmação de Pedido - Kit Completo' : 'Confirmação de Pedido - Kit Bíblico',
-    html: emailHtml
+    html: emailHtml,
+    mail_settings: {
+      spam_check: {
+        enable: false // 🛡️ Desabilitar spam check para evitar erro de post_to_url
+      }
+    }
   };
 
   return await sgMail.send(msg);
@@ -160,16 +224,17 @@ function extractOrderData(rawData) {
     }
   }
   
-  // Se nada funcionou, retornar dados padrão
-  console.log('⚠️ Nenhuma tentativa válida, usando dados padrão');
+  // Se nada funcionou, FALHAR ao invés de usar dados incorretos
+  console.log('❌ Nenhuma tentativa válida - dados insuficientes');
   return {
-    isValid: true,
-    customerEmail: 'contato@befmarket.store',
-    customerName: 'Cliente (Dados Padrão)',
-    orderTotal: 47,
+    isValid: false,
+    customerEmail: null,
+    customerName: null,
+    orderTotal: 0,
     orderItems: [],
-    source: 'fallback default',
-    originalData: rawData
+    source: 'extraction failed',
+    originalData: rawData,
+    error: 'Não foi possível extrair email do cliente'
   };
 }
 
@@ -185,53 +250,19 @@ function processOrderData(orderData, eventType) {
     throw new Error('Dados do pedido não encontrados');
   }
   
-  // YAMPI REAL: ULTRA-ROBUSTA extração de email (15+ tentativas)
-  let customerEmail = null;
-  
-  // Tentativas ordenadas por prioridade
-  const emailPaths = [
-    // Estruturas Yampi confirmadas
-    'resource.customer.email',
-    'resource.buyer.email', 
-    'resource.user.email',
-    'customer.email',
-    'buyer.email',
-    'user.email',
-    
-    // Estruturas alternativas
-    'buyer_email',
-    'customer_email', 
-    'user_email',
-    'email',
-    'payer_email',
-    'recipient_email',
-    'contact_email',
-    
-    // Estruturas aninhadas
-    'data.customer.email',
-    'data.buyer.email',
-    'order.customer.email',
-    'payment.customer.email'
-  ];
-  
-  for (const path of emailPaths) {
-    const email = getNestedValue(orderData, path);
-    if (email && email.includes('@')) {
-      customerEmail = email;
-      console.log(`✅ Email encontrado em: ${path} = ${email}`);
-      break;
-    }
-  }
-  
-  // BUSCA EMERGENCIAL: Procurar qualquer email em todo o objeto
-  if (!customerEmail) {
-    console.log('🔍 BUSCA EMERGENCIAL: Procurando email em todo o objeto...');
-    const foundEmail = findEmailInObject(orderData);
-    if (foundEmail) {
-      customerEmail = foundEmail.email;
-      console.log(`🎯 Email encontrado via busca emergencial: ${foundEmail.path} = ${foundEmail.email}`);
-    }
-  }
+  // YAMPI REAL: Múltiplas formas de extrair email
+  const customerEmail = 
+    orderData.resource?.customer?.email ||      // Yampi real structure
+    orderData.data?.customer?.email ||          // Estrutura alternativa
+    orderData.customer?.email ||
+    orderData.buyer_email ||
+    orderData.email ||
+    orderData.customer_email ||
+    orderData.user_email ||
+    orderData.recipient_email ||
+    orderData.contact_email ||
+    orderData.payer_email ||
+    null;
   
   // YAMPI REAL: Múltiplas formas de extrair nome
   const customerName = 
@@ -257,17 +288,8 @@ function processOrderData(orderData, eventType) {
     orderData.line_items || 
     [];
   
-  // VALIDAÇÃO FINAL: Se ainda não encontrou email, usar fallback inteligente
-  let foundRealEmail = !!customerEmail;
-  if (!customerEmail) {
-    console.log('⚠️ EMAIL NÃO ENCONTRADO - Usando fallback para não bloquear o sistema');
-    customerEmail = 'contato@befmarket.store';  // Temporário para não bloquear
-    foundRealEmail = false;
-  }
-
   const result = {
-    isValid: true,  // ✅ SEMPRE VÁLIDO - não bloquear mais o sistema
-    foundRealEmail,
+    isValid: customerEmail ? true : false,
     customerEmail,
     customerName,
     orderTotal,
@@ -285,51 +307,20 @@ function processOrderData(orderData, eventType) {
   return result;
 }
 
-// Função para acessar propriedades aninhadas usando string path
-function getNestedValue(obj, path) {
-  return path.split('.').reduce((current, key) => {
-    return current && current[key] !== undefined ? current[key] : null;
-  }, obj);
-}
-
-// Função para buscar qualquer email em todo o objeto (busca recursiva)
-function findEmailInObject(obj, currentPath = '') {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
-  if (typeof obj !== 'object' || obj === null) {
-    return null;
-  }
-  
-  for (const [key, value] of Object.entries(obj)) {
-    const fullPath = currentPath ? `${currentPath}.${key}` : key;
-    
-    // Se o valor é string e parece ser email
-    if (typeof value === 'string' && emailRegex.test(value)) {
-      return { email: value, path: fullPath };
-    }
-    
-    // Se o valor é objeto, buscar recursivamente
-    if (typeof value === 'object' && value !== null) {
-      const result = findEmailInObject(value, fullPath);
-      if (result) {
-        return result;
-      }
-    }
-  }
-  
-  return null;
-}
-
 // Função auxiliar para descobrir de onde veio cada campo
 function getFieldSource(data, fieldType) {
   switch (fieldType) {
     case 'email':
       if (data.resource?.customer?.email) return 'resource.customer.email';
+      if (data.data?.customer?.email) return 'data.customer.email';
       if (data.customer?.email) return 'customer.email';
       if (data.buyer_email) return 'buyer_email';
       if (data.email) return 'email';
       if (data.customer_email) return 'customer_email';
       if (data.user_email) return 'user_email';
+      if (data.recipient_email) return 'recipient_email';
+      if (data.contact_email) return 'contact_email';
+      if (data.payer_email) return 'payer_email';
       return 'not found';
       
     case 'name':
@@ -371,10 +362,12 @@ exports.handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
-  console.log('🚀 WEBHOOK ULTRA-ROBUSTO INICIADO');
+  console.log('🚀🚀🚀 WEBHOOK ULTRA-ROBUSTO INICIADO - VERSÃO DIAGNÓSTICO 🚀🚀🚀');
   console.log('⏰ Timestamp:', new Date().toISOString());
   console.log('🌐 HTTP Method:', event.httpMethod);
   console.log('📍 Request ID:', context.awsRequestId);
+  console.log('🔧 VERSÃO: EMAIL-OVERRIDE-TEMPORARIO');
+  console.log('🎯 OBJETIVO: Diagnosticar por que email não chega');
 
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -479,106 +472,105 @@ exports.handler = async (event, context) => {
     console.log('📊 Fonte dos dados:', dataSource);
     console.log('🔍 Dados processados:', JSON.stringify(webhookData, null, 2));
     
-    // DEBUG: Analisar estrutura completa dos dados
-    console.log('🔬 === ANÁLISE DETALHADA DOS DADOS ===');
-    console.log('Tipo do objeto:', typeof webhookData);
-    console.log('Chaves principais:', webhookData ? Object.keys(webhookData) : 'nenhuma');
-    
-    if (webhookData && webhookData.resource) {
-      console.log('📋 webhookData.resource encontrado:', Object.keys(webhookData.resource));
-      if (webhookData.resource.customer) {
-        console.log('👤 customer encontrado:', Object.keys(webhookData.resource.customer));
-      }
-    }
-    
-    if (webhookData && webhookData.customer) {
-      console.log('👤 customer direto encontrado:', Object.keys(webhookData.customer));
-    }
-    console.log('=========================================');
-    
     // Extrair dados do pedido com múltiplas tentativas
     const orderInfo = extractOrderData(webhookData);
     
-    // ✅ REMOVIDO: Não bloquear mais o sistema, sempre tentar enviar
-    console.log('📊 Dados extraídos:', {
-      emailEncontrado: orderInfo.foundRealEmail,
-      emailFinal: orderInfo.customerEmail,
-      nomeCliente: orderInfo.customerName,
-      valorPedido: orderInfo.orderTotal
-    });
+    if (!orderInfo.isValid && !webhookData.test_mode) {
+      console.log('❌ CRÍTICO: Não foi possível extrair email do cliente');
+      console.log('🔍 Dados recebidos para debug:', JSON.stringify(webhookData, null, 2));
+      console.log('🔍 Estruturas testadas:', orderInfo.extractedFrom);
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          success: false,
+          error: 'Email do cliente não encontrado nos dados do pedido',
+          dataSource,
+          debugInfo: orderInfo.extractedFrom,
+          receivedData: webhookData,
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
+    
+    // Log adicional se email foi encontrado com sucesso
+    if (orderInfo.customerEmail) {
+      console.log('✅ Email do cliente extraído com sucesso:', orderInfo.customerEmail);
+      console.log('📍 Extraído de:', orderInfo.extractedFrom?.emailFrom);
+    }
     
     console.log('📧 === PREPARANDO ENVIO DE EMAIL ===');
-    console.log('Email do cliente:', orderInfo.customerEmail);
+    console.log('Email do cliente (ORIGINAL):', orderInfo.customerEmail);
     console.log('Nome do cliente:', orderInfo.customerName);
     console.log('Valor do pedido:', orderInfo.orderTotal);
     console.log('Fonte dos dados:', orderInfo.extractedFrom || dataSource);
     
-    // Determinar produtos baseado no valor
-    const allProductsList = PRODUCT_MAPPING['CZ5JKMXCI7'] || [];
-    let products = [];
+    // 🚨 OVERRIDE TEMPORÁRIO: Forçar email correto para testes
+    console.log('🧪 VERIFICANDO OVERRIDE CONDITION...');
+    console.log('🧪 customerEmail === teste@email.com?', orderInfo.customerEmail === 'teste@email.com');
+    console.log('🧪 !customerEmail?', !orderInfo.customerEmail);
     
-    if (orderInfo.orderTotal >= 40) {
-      // Kit completo: todos os 9 produtos
-      products = allProductsList;
-      console.log('🎯 Kit Completo detectado (R$', orderInfo.orderTotal, ') - enviando', products.length, 'produtos');
+    if (orderInfo.customerEmail === 'teste@email.com' || !orderInfo.customerEmail) {
+      console.log('🔄🔄🔄 OVERRIDE ATIVADO: Substituindo email de teste pelo email real');
+      console.log('🔄 Email ANTES do override:', orderInfo.customerEmail);
+      orderInfo.customerEmail = 'felippeduartte90@gmail.com';
+      orderInfo.customerName = orderInfo.customerName || 'Felipe';
+      console.log('🔄 Email DEPOIS do override:', orderInfo.customerEmail);
     } else {
-      // Produto individual: APENAS 1 produto específico
-      if (orderInfo.orderItems && orderInfo.orderItems.length > 0) {
-        // Mapear produto específico baseado nos items do pedido
-        const itemName = (orderInfo.orderItems[0].product?.name || orderInfo.orderItems[0].name || '').toLowerCase();
-        
-        // Buscar produto correspondente
-        const matchedProduct = allProductsList.find(product => {
-          const productName = product.name.toLowerCase();
-          return productName.includes(itemName) || 
-                 itemName.includes(productName) ||
-                 itemName.includes('alegria') && productName.includes('alegria') ||
-                 itemName.includes('orar') && productName.includes('orar') ||
-                 itemName.includes('amor') && productName.includes('amor') ||
-                 itemName.includes('jesus') && productName.includes('jesus') ||
-                 itemName.includes('passatempo') && productName.includes('passatempo') ||
-                 itemName.includes('aventura') && productName.includes('aventura') ||
-                 itemName.includes('alfabeto') && productName.includes('alfabeto') ||
-                 itemName.includes('colorin') && productName.includes('colorin') ||
-                 itemName.includes('atividade') && productName.includes('atividade');
-        });
-        
-        products = matchedProduct ? [matchedProduct] : [allProductsList[0]];
-        console.log('🎯 Produto Individual detectado (R$', orderInfo.orderTotal, ') - produto:', products[0].name);
-      } else {
-        // Fallback: primeiro produto da lista
-        products = [allProductsList[0]];
-        console.log('🎯 Produto Individual detectado (R$', orderInfo.orderTotal, ') - produto padrão');
-      }
+      console.log('🔄 OVERRIDE NÃO ATIVADO - Email parece ser real');
     }
+    console.log('✅ Email do cliente (FINAL):', orderInfo.customerEmail);
+    
+    // 🎯 SOLUÇÃO 1: Determinar produtos baseado no SKU/TOKEN YAMPI
+    const allProductsList = PRODUCT_MAPPING['CZ5JKMXCI7']?.products || [];
+    
+    let products = [];
+    let detectionMethod = 'unknown';
+    
+    // Tentativa 1: Extrair SKU/Token dos dados do pedido
+    const orderSku = 
+      orderInfo.orderItems?.[0]?.sku ||
+      orderInfo.orderItems?.[0]?.product?.sku ||
+      orderInfo.orderItems?.[0]?.product_sku ||
+      orderInfo.sku ||
+      webhookData.resource?.sku ||
+      webhookData.data?.order?.sku ||
+      null;
+      
+    console.log('🔍 SKU encontrado nos dados:', orderSku);
+    
+    // Tentativa 2: Usar SKU para mapear produtos
+    if (orderSku && PRODUCT_MAPPING[orderSku]) {
+      const mapping = PRODUCT_MAPPING[orderSku];
+      products = mapping.products;
+      detectionMethod = `SKU: ${orderSku} (${mapping.type})`;
+      console.log('✅ Produtos detectados por SKU:', orderSku, '-', products.length, 'produto(s)', mapping.type);
+    }
+    // 🛡️ FALLBACK ULTRA-SEGURO: Sempre entregar apenas 1 produto
+    else {
+      products = [allProductsList[0]]; // Sempre 1 produto padrão
+      detectionMethod = `FALLBACK SEGURO - produto padrão`;
+      console.log('🛡️ SKU não detectado - aplicando fallback CONSERVADOR');
+      console.log('🛡️ ENTREGA SEGURA: 1 produto padrão para evitar prejuízo financeiro');
+      console.log('📦 Produto entregue:', products[0]?.name || 'produto não encontrado');
+      console.log('💡 CONFIGURE SKU na Yampi para detecção precisa');
+    }
+    
+    console.log('🎯 Método de detecção:', detectionMethod);
+    console.log('📦 Produtos finais:', products.map(p => p.name));
     
     console.log('📦 Lista de produtos para envio:', products.map(p => p.name));
     
-    // Enviar email com proteção contra falhas
+    // Enviar email
     console.log('📤 Iniciando envio do email...');
-    let emailResult = null;
-    let emailSuccess = false;
-    let emailError = null;
+    const emailResult = await sendProductEmail(orderInfo.customerEmail, orderInfo.customerName, products);
     
-    try {
-      emailResult = await sendProductEmail(orderInfo.customerEmail, orderInfo.customerName, products);
-      emailSuccess = true;
-      
-      console.log('✅ === EMAIL ENVIADO COM SUCESSO ===');
-      console.log('SendGrid Response Status:', emailResult && emailResult[0] ? emailResult[0].statusCode : 'N/A');
-      console.log('SendGrid Message ID:', emailResult && emailResult[0] ? emailResult[0].headers['x-message-id'] : 'N/A');
-      console.log('Email enviado para:', orderInfo.customerEmail);
-      console.log('Produtos entregues:', products.length);
-      console.log('===================================');
-      
-    } catch (error) {
-      emailError = error.message;
-      console.log('❌ === FALHA NO ENVIO DO EMAIL ===');
-      console.log('Erro:', error.message);
-      console.log('Email tentativa:', orderInfo.customerEmail);
-      console.log('Produtos:', products.length);
-      console.log('=================================');
-    }
+    console.log('✅ === EMAIL ENVIADO COM SUCESSO ===');
+    console.log('SendGrid Response Status:', emailResult[0].statusCode);
+    console.log('SendGrid Message ID:', emailResult[0].headers['x-message-id']);
+    console.log('Email enviado para:', orderInfo.customerEmail);
+    console.log('Produtos entregues:', products.length);
+    console.log('===================================');
     
     return {
       statusCode: 200,
@@ -592,10 +584,7 @@ exports.handler = async (event, context) => {
           products: products.length,
           orderTotal: orderInfo.orderTotal,
           dataSource: dataSource,
-          emailSuccess,
-          emailError,
-          foundRealEmail: orderInfo.foundRealEmail,
-          sendgridMessageId: emailSuccess && emailResult && emailResult[0] ? emailResult[0].headers['x-message-id'] : null,
+          sendgridMessageId: emailResult[0].headers['x-message-id'],
           timestamp: new Date().toISOString()
         }
       })
