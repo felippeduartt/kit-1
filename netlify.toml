@@ -1,9 +1,13 @@
 [build]
-  publish = "."
-  command = "echo 'Netlify build completed'"
+  publish = "dist/public"
+  command = "npm run build"
 
 [functions]
-  directory = "functions"
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  
+[functions.yampi-webhook]
+  timeout = 30
 
 [[redirects]]
   from = "/api/yampi/webhook"
@@ -11,12 +15,7 @@
   status = 200
 
 [[redirects]]
-  from = "/webhook-admin.html"
-  to = "/webhook-admin.html"
-  status = 200
-
-[[redirects]]
-  from = "/"
+  from = "/*"
   to = "/index.html"
   status = 200
 
